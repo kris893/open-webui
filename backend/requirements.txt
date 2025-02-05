@@ -16,7 +16,7 @@ async-timeout
 aiocache
 aiofiles
 
-sqlalchemy==2.0.32
+sqlalchemy==2.0.37
 alembic==1.14.0
 peewee==3.17.8
 peewee-migrate==1.12.2
