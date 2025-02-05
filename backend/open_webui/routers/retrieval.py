@@ -71,7 +71,6 @@ from open_webui.utils.misc import (
 )
 from open_webui.utils.auth import get_admin_user, get_verified_user
 
-
 from open_webui.config import (
     ENV,
     RAG_EMBEDDING_MODEL_AUTO_UPDATE,
@@ -80,6 +79,8 @@ from open_webui.config import (
     RAG_RERANKING_MODEL_TRUST_REMOTE_CODE,
     UPLOAD_DIR,
     DEFAULT_LOCALE,
+    RAG_EMBEDDING_PASSAGE_PREFIX,
+    RAG_EMBEDDING_QUERY_PREFIX
 )
 from open_webui.env import (
     SRC_LOG_LEVELS,
@@ -781,7 +782,7 @@ def save_docs_to_vector_db(
         )
 
         embeddings = embedding_function(
-            list(map(lambda x: x.replace("\n", " "), texts))
+            list(map(lambda x: x.replace("\n", " "), texts)), RAG_EMBEDDING_PASSAGE_PREFIX
         )
 
         items = [
@@ -1332,7 +1333,7 @@ def query_doc_handler(
         else:
             return query_doc(
                 collection_name=form_data.collection_name,
-                query_embedding=request.app.state.EMBEDDING_FUNCTION(form_data.query),
+                query_embedding=request.app.state.EMBEDDING_FUNCTION(form_data.query, RAG_EMBEDDING_QUERY_PREFIX),
                 k=form_data.k if form_data.k else request.app.state.config.TOP_K,
             )
     except Exception as e:
@@ -1451,7 +1452,7 @@ if ENV == "dev":
 
     @router.get("/ef/{text}")
     async def get_embeddings(request: Request, text: Optional[str] = "Hello World!"):
-        return {"result": request.app.state.EMBEDDING_FUNCTION(text)}
+        return {"result": request.app.state.EMBEDDING_FUNCTION(text, RAG_EMBEDDING_QUERY_PREFIX)}
 
 
 class BatchProcessFilesForm(BaseModel):
